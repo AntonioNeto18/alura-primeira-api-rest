@@ -5,7 +5,7 @@ export default class LivroController {
 
     static async listarLivros(req, res) {
         try {
-            const listaLivros = await livro.find({});
+            const listaLivros = await livro.find({}).populate("autor").exec();
             res.status(200).json(listaLivros);
         } catch (erro) {
             res.status(500).json({ message: `Falha na requisição - ${erro}` })
@@ -22,13 +22,20 @@ export default class LivroController {
         }
     };
 
-    static async cadastrarLivro(req, res) {
-        const novoLivro = req.body;
+    static async listarLivroPorEditora(req, res) {
         try {
-            const autorEncontrado = await autor.findById(novoLivro.autor);
-            const livroCompleto = { ...novoLivro, autor: { ...autorEncontrado._doc } };
-            const livroCriado = await livro.create(livroCompleto);
-            res.status(201).json({ message: "Criado com sucesso!", livro: livroCriado });
+            const editora = req.query.editora;
+            const listaLivrosEncontrados = await livro.find({ editora: editora });
+            res.status(200).json(listaLivrosEncontrados);
+        } catch (erro) {
+            res.status(500).json({ message: `Falha na requisição - ${erro}` });
+        }
+    }
+
+    static async cadastrarLivro(req, res) {
+        try {
+            const novoLivro = livro.create(req.body);
+            res.status(201).json({ message: "Criado com sucesso!", livro: novoLivro });
         } catch (erro) {
             res.status(500).json({ message: `${erro.message} - Falha ao cadastrar livro.` });
         };
@@ -51,6 +58,15 @@ export default class LivroController {
             res.status(200).json({ message: "Livro deletado" })
         } catch (erro) {
             res.status(500).json({ message: `Falha na requisição - ${erro}` })
-        }
-    }
+        };
+    };
+
+    static async deletarTodosOsLivros (req, res) {
+        try {
+            await livro.deleteMany({});
+            res.status(200).json({ message: "Livros deletados" });
+        } catch (erro) {
+            res.status(500).json({ message: `Falha na requisição - ${erro}` });
+        };
+    };
 };

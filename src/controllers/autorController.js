@@ -49,4 +49,13 @@ export default class AutorController {
             res.status(500).json({ message: `Falha na requisição - ${erro}` });
         };
     }
+
+    static async deletarTodosOsAutores (req, res) {
+        try {
+            await autor.deleteMany({});
+            res.status(200).json({ message: "Autores deletados" });
+        } catch (erro) {
+            res.status(500).json({ message: `Falha na requisição - ${erro}` });
+        };
+    };
 };
